@@ -8,4 +8,5 @@ editable rectangle rather than a fake or flattened substitute.
 The Windows runner creates VSDX, reopens and counts pages/shapes/connectors/text, saves a
 roundtrip, exports PDF, emits a PNG preview, runs shared PDF QA, and requires a page review.
 The private current run reached L5 with Visio 16.0: 11 total shapes, 5 connectors, 6 text
-objects, one rendered page, and no visual flags.
+objects, one rendered page, and no visual flags. With the project recovery record attached, the
+matrix row closes at L6.

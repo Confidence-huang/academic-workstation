@@ -13,4 +13,5 @@ create DOCX → Word open → SaveAs2 roundtrip → reopen and inspect
 
 The private current run reached L5 with Word 16.0: 3 pages, 1 table, 1 embedded picture, a
 successful roundtrip, PDF export, and a review record for every rendered page. No user document
-or existing Word process is part of the public fixture.
+or existing Word process is part of the public fixture. With the project recovery record
+attached, the matrix row closes at L6.

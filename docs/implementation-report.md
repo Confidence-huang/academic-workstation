@@ -36,16 +36,17 @@ can substitute for native applications:
 | Artifact row | Native/derivative result | Matrix result | Evidence boundary |
 | --- | --- | --- | --- |
 | PPTX | v0.1.0 pilot reached L5 with the documented PDF fallback | `PASS_WITH_WARNING` | Existing private current-run PowerPoint evidence |
-| DOCX | Word 16.0 generated, reopened, round-tripped, exported 3 PDF pages, and passed visual review | `PASS_WITH_WARNING` | Private Windows runner; recovery remains separate |
-| XLSX | Excel 16.0 generated 3 sheets/25 data rows/formulas and an editable chart, exported the 1-page Dashboard, and passed visual review | `PASS_WITH_WARNING` | Private Windows runner; recovery remains separate |
-| VSDX | Visio 16.0 preserved 6 labeled shapes and 5 connectors, round-tripped, exported, and passed visual review | `PASS_WITH_WARNING` | Private Windows runner; recovery remains separate |
-| LaTeX/PDF | TeX Live 2026 `latexmk-xelatex` compiled 4 pages; PDF structure, render, and visual review passed | `PASS_WITH_WARNING` | Private Windows compiler/PDF QA; recovery remains separate |
+| DOCX | Word 16.0 generated, reopened, round-tripped, exported 3 PDF pages, and passed visual review | `PASS` / `L6` | Private Windows runner plus project recovery gate |
+| XLSX | Excel 16.0 generated 3 sheets/25 data rows/formulas and an editable chart, exported the 1-page Dashboard, and passed visual review | `PASS` / `L6` | Private Windows runner plus project recovery gate |
+| VSDX | Visio 16.0 preserved 6 labeled shapes and 5 connectors, round-tripped, exported, and passed visual review | `PASS` / `L6` | Private Windows runner plus project recovery gate |
+| LaTeX/PDF | TeX Live 2026 `latexmk-xelatex` compiled 4 pages; PDF structure, render, and visual review passed | `PASS` / `L6` | Private Windows compiler/PDF QA plus project recovery gate |
 
-The row warning is intentional: the aggregate matrix does not silently promote a missing
-recovery gate, and the legacy PPTX evidence predates the v0.2.0 gate-map shape. The individual
-Word, Excel, Visio, and LaTeX/PDF native/derivative gates are complete at L5 in the private
-run. L6 requires the release backup/restore and reproducibility record to be attached to the
-same matrix decision.
+The final aggregate is `PASS_WITH_WARNING` only because the current PPTX evidence records the
+known `ExportAsFixedFormat` primary-export failure and uses an explicit PDF fallback; its legacy
+record also predates the v0.2.0 gate-map shape. The DOCX, XLSX, VSDX, and LaTeX/PDF rows are
+`PASS` at L6 after the project recovery record is attached. The recovery rehearsal used the
+committed revision `16e5b5fe2be92308016abaff593448a2dba77ad4`, backed up 80 tracked files, and
+passed both source-to-backup and backup-to-restore manifest comparisons.
 
 ## Verification commands
 
@@ -59,8 +60,9 @@ uv run python scripts/scan_public_repo.py --root . --strict
 ```
 
 Run the native boundary on Windows with a private output root, inspect every PNG, then rerun
-with `-VisualReviewRoot`. Compile the public LaTeX fixture with `compile_latex.py`, run
-`pdf_qa.py`, and finally merge all JSON records with `acceptance_matrix.py`.
+with `-VisualReviewRoot` and `-RecoveryEvidence`. Compile the public LaTeX fixture with
+`compile_latex.py`, run `pdf_qa.py`, run `recovery_rehearsal.py` from a clean commit, and finally
+merge all JSON records with `acceptance_matrix.py --recovery-evidence`.
 
 ## Publication boundary
 

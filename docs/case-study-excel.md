@@ -11,3 +11,4 @@ an explicit visual observation. LibreOffice is not used as the final Excel accep
 
 The private current run reached L5 with Excel 16.0: three worksheets, formula cache `700`, an
 editable chart object, one Dashboard PDF page, and no visual flags.
+With the project recovery record attached, the matrix row closes at L6.

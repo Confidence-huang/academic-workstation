@@ -58,7 +58,9 @@ row.
 must remain one of `PASS`, `PASS_WITH_WARNING`, `DEFERRED`, `UNAVAILABLE`, `FAIL`, or `BLOCKED`.
 Gate values additionally preserve `NOT_RUN` and `NOT_APPLICABLE`. A missing or unrun required
 gate cannot be silently promoted to `PASS`; an explicit fallback keeps the result at least
-`PASS_WITH_WARNING` even when downstream QA succeeds.
+`PASS_WITH_WARNING` even when downstream QA succeeds. A stage-local deferral may be closed only
+when a companion gate in the same matrix proves that work; a fallback or unresolved warning
+always remains visible.
 
 ## Native boundary
 

@@ -13,3 +13,4 @@ underfull boxes remain visible as layout diagnostics.
 `scripts/pdf_qa.py` then checks PDF structure and geometry, renders every page with Poppler, and
 requires one visual observation per page. The private current run used TeX Live 2026
 `latexmk-xelatex`, produced 4 pages, and passed structure, rendering, and visual review.
+With the project recovery record attached, the matrix row closes at L6.
