@@ -55,6 +55,38 @@ class RoutingTest(unittest.TestCase):
         self.assertEqual(result["status"], "BLOCKED")
         self.assertTrue(result["blockers"])
 
+    def test_document_spreadsheet_diagram_and_latex_policies_are_explicit(self) -> None:
+        requests = [
+            ("docx", "document-generation", "native-word-acceptance", "Microsoft Word"),
+            ("xlsx", "spreadsheet-generation", "native-excel-acceptance", "Microsoft Excel"),
+            ("vsdx", "editable-diagram-generation", "native-visio-acceptance", "Microsoft Visio"),
+        ]
+        for target_format, capability, native_capability, application in requests:
+            result = choose_route(
+                {
+                    "inputFormat": target_format,
+                    "targetFormat": target_format,
+                    "nativeAcceptance": True,
+                    "requiredNative": True,
+                    "availableCapabilities": [capability, native_capability],
+                }
+            )
+            self.assertEqual(result["status"], "PASS")
+            self.assertEqual(result["capability"], capability)
+            self.assertEqual(result["nativeApplication"], application)
+            self.assertIn(native_capability, result["route"])
+
+        latex = choose_route(
+            {
+                "inputFormat": "tex",
+                "targetFormat": "pdf",
+                "availableCapabilities": ["latex-compilation", "pdf-render-and-inspect"],
+            }
+        )
+        self.assertEqual(latex["status"], "PASS")
+        self.assertEqual(latex["capability"], "latex-compilation")
+        self.assertIn("pdf-render-and-inspect", latex["route"])
+
 
 if __name__ == "__main__":
     unittest.main()

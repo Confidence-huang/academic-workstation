@@ -6,15 +6,35 @@
   "required": ["schemaVersion", "origin", "status", "checks", "artifacts", "warnings", "deferred", "blockers"],
   "properties": {
     "schemaVersion": {"const": "1.0"},
+    "artifactType": {"enum": ["pptx", "docx", "xlsx", "vsdx", "latex", "pdf"]},
+    "sourceArtifactType": {"enum": ["pptx", "docx", "xlsx", "vsdx", "latex", "pdf", null]},
+    "task": {"type": "string", "minLength": 1},
+    "platform": {},
+    "nativeApplication": {"type": "string"},
+    "nativeApplicationVersion": {"type": "string"},
+    "sourcePath": {"anyOf": [{"$ref": "#/$defs/relativePath"}, {"type": "null"}]},
+    "roundtripPath": {"anyOf": [{"$ref": "#/$defs/relativePath"}, {"type": "null"}]},
+    "exportPath": {"anyOf": [{"$ref": "#/$defs/relativePath"}, {"type": "null"}]},
+    "generatedAt": {"type": "string", "minLength": 1},
     "origin": {"enum": ["CURRENT_RUN", "HISTORICAL_SOURCE", "SYNTHETIC_EXAMPLE", "USER_SUPPLIED"]},
     "status": {"enum": ["PASS", "PASS_WITH_WARNING", "FAIL", "BLOCKED"]},
     "checks": {"type": "array", "items": {"$ref": "#/$defs/check"}},
     "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
     "warnings": {"type": "array", "items": {"type": "string"}},
     "deferred": {"type": "array", "items": {"type": "string"}},
-    "blockers": {"type": "array", "items": {"type": "string"}}
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "fallbacks": {"type": "array", "items": {"$ref": "#/$defs/fallback"}},
+    "visualReview": {"type": "array", "items": {"$ref": "#/$defs/visualReview"}},
+    "acceptance": {"$ref": "#/$defs/acceptance"},
+    "route": {"type": "object"},
+    "recovery": {"type": "object"}
   },
   "$defs": {
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!//)(?!\\.\\.?(?:/|$))(?!.*(?:^|/)\\.\\.(?:/|$)).+"
+    },
     "check": {
       "type": "object",
       "required": ["name", "status", "required"],
@@ -26,11 +46,44 @@
       },
       "additionalProperties": true
     },
+    "fallback": {
+      "type": "object",
+      "required": ["step", "primary", "error", "fallback", "fallbackResult"],
+      "properties": {
+        "step": {"type": "string", "minLength": 1},
+        "primary": {"type": "string", "minLength": 1},
+        "error": {"type": "string"},
+        "fallback": {"type": "string", "minLength": 1},
+        "fallbackResult": {"enum": ["PASS", "PASS_WITH_WARNING", "FAIL", "NOT_RUN"]}
+      },
+      "additionalProperties": true
+    },
+    "visualReview": {
+      "type": "object",
+      "required": ["page", "blank", "clipping", "overlap", "overflow", "notes"],
+      "properties": {
+        "page": {"type": "integer", "minimum": 1},
+        "blank": {"type": "boolean"},
+        "clipping": {"type": "boolean"},
+        "overlap": {"type": "boolean"},
+        "overflow": {"type": "boolean"},
+        "notes": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "acceptance": {
+      "type": "object",
+      "properties": {
+        "highestLevel": {"type": "string", "pattern": "^L[0-6]$"},
+        "gates": {"type": "object", "additionalProperties": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
     "artifact": {
       "type": "object",
       "required": ["path", "sha256"],
       "properties": {
-        "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:)(?!//)"},
+        "path": {"$ref": "#/$defs/relativePath"},
         "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
         "bytes": {"type": "integer", "minimum": 0}
       },

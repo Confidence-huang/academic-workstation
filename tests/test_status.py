@@ -48,6 +48,27 @@ class StatusTest(unittest.TestCase):
         )
         self.assertEqual(result["status"], "BLOCKED")
 
+    def test_compatibility_fallback_is_visible_as_a_warning(self) -> None:
+        result = derive_status(
+            {
+                "checks": [{"name": "export", "status": "PASS", "required": True}],
+                "warnings": [],
+                "deferred": [],
+                "blockers": [],
+                "fallbacks": [
+                    {
+                        "step": "pdf-export",
+                        "primary": "native export",
+                        "error": "unsupported call",
+                        "fallback": "compatible export",
+                        "fallbackResult": "PASS",
+                    }
+                ],
+            }
+        )
+        self.assertEqual(result["status"], "PASS_WITH_WARNING")
+        self.assertEqual(result["fallbackCount"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

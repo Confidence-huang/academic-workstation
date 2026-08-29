@@ -31,6 +31,7 @@ def derive_status(document: dict[str, Any]) -> dict[str, Any]:
     warnings = _items(document.get("warnings"))
     deferred = _items(document.get("deferred"))
     blockers = _items(document.get("blockers"))
+    fallbacks = _items(document.get("fallbacks"))
     failed_required = 0
     required_not_run = 0
     not_run = 0
@@ -56,10 +57,12 @@ def derive_status(document: dict[str, Any]) -> dict[str, Any]:
         reasons.append(f"{len(blockers)} external blocker(s) remain")
     elif failed_required or required_not_run:
         status = "FAIL"
-    elif warnings or deferred or not_run:
+    elif warnings or deferred or fallbacks or not_run:
         status = "PASS_WITH_WARNING"
         if deferred:
             reasons.append(f"{len(deferred)} deferred item(s) remain; DEFERRED is not PASS")
+        if fallbacks:
+            reasons.append(f"{len(fallbacks)} compatibility fallback(s) were used")
         if not_run:
             reasons.append(f"{not_run} check(s) were not run")
     else:
@@ -69,9 +72,10 @@ def derive_status(document: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("internal status derivation error")
     return {
         "status": status,
-        "warningCount": len(warnings) + len(deferred),
+        "warningCount": len(warnings) + len(deferred) + len(fallbacks),
         "deferredCount": len(deferred),
         "blockerCount": len(blockers),
+        "fallbackCount": len(fallbacks),
         "failedRequiredCheckCount": failed_required,
         "requiredNotRunCount": required_not_run,
         "notRunCount": not_run,

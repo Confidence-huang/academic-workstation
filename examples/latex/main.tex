@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{Academic Workstation Synthetic LaTeX Fixture}
+\author{Public acceptance test}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document is synthetic test data. It exercises compilation, references, citations,
+figures, tables, equations, and PDF page rendering; it is not a research result.
+\end{abstract}
+
+\section{Purpose}\label{sec:purpose}
+The acceptance route keeps the editable \LaTeX{} source and treats the PDF as a derivative QA
+surface. The fixture is intentionally small, deterministic, and safe to publish. The workflow
+described here follows the evidence pattern in the Academic Workstation matrix
+\cite{syntheticAcceptance}.
+
+\section{Signal fixture}\label{sec:signal}
+Figure~\ref{fig:path} shows the input figure drawn from a text source rather than a binary asset.
+The synthetic signal is represented by
+\begin{equation}
+  y(t) = a\sin(2\pi f t + \phi) + \varepsilon(t),
+  \label{eq:signal}
+\end{equation}
+where $a$ is amplitude, $f$ is frequency, $\phi$ is phase, and $\varepsilon$ is a synthetic
+perturbation. Equation~\ref{eq:signal} is deliberately labeled so cross-reference resolution
+is visible in the compile log.
+
+\begin{figure}[ht]
+  \centering
+  \input{figure.tex}
+  \caption{A synthetic signal path drawn with the LaTeX picture environment.}
+  \label{fig:path}
+\end{figure}
+
+\clearpage
+\section{Tabular fixture}\label{sec:table}
+Table~\ref{tab:measurements} contains deterministic values used only to exercise table
+generation. The values are not measurements and must not be interpreted as experimental data.
+
+\begin{table}[ht]
+  \centering
+  \caption{Synthetic measurements for acceptance testing.}
+  \label{tab:measurements}
+  \begin{tabular}{@{}lrrr@{}}
+    \toprule
+    Group & Count & Score & Flag \\
+    \midrule
+    Alpha & 4  & 51.4 & PASS \\
+    Beta  & 6  & 52.1 & PASS \\
+    Gamma & 8  & 52.8 & PASS \\
+    Delta & 10 & 53.5 & PASS \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The table is cross-referenced from Section~\ref{sec:table}, while the figure and equation
+remain available from Section~\ref{sec:signal}. Keeping these links live distinguishes a
+structured source from a flattened page image.
+
+\clearpage
+\section{Acceptance notes}\label{sec:notes}
+The compiler records its selected engine, command diagnostics, output PDF, and SHA-256 hashes.
+The PDF QA stage then checks page count and geometry, renders each page, and requires one visual
+observation per page. A missing visual observation is a failed gate, not an implicit pass.
+
+\begin{itemize}
+  \item Source: editable \texttt{main.tex}, \texttt{figure.tex}, and \texttt{references.bib}.
+  \item Structural checks: equation, table, figure, citation, and cross-reference.
+  \item Derivative checks: PDF structure, page rendering, and page-by-page visual review.
+\end{itemize}
+
+\clearpage
+\section{Reproducibility boundary}\label{sec:boundary}
+The public fixture does not include private workstation paths, generated binaries, credentials,
+or user documents. The exact TeX distribution and PDF tools are recorded in private evidence at
+runtime. This separation lets the repository demonstrate the acceptance contract without
+claiming that every host has the same native capability.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

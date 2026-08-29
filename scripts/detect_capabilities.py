@@ -1,8 +1,8 @@
-"""Detect locally available capability signals without launching native applications.
+"""Detect tool and native-application signals without launching or mutating them.
 
-Detection is deliberately conservative: finding an executable or standard Office path
-does not prove that the application is licensed, usable, or accepted. Native acceptance
-still requires an isolated synthetic run and evidence from the target application.
+The output describes command paths, short versions, host platform, and caveats. It is a routing
+hint only: an executable does not prove license validity, native round-trip behavior, or a clean
+process boundary. Example: ``python scripts/detect_capabilities.py --output capability.json``.
 """
 
 from __future__ import annotations
@@ -12,18 +12,27 @@ import json
 import os
 import platform
 import shutil
+import subprocess
 from pathlib import Path
+from typing import Callable
 
 from path_tools import redact_path
 
 
 COMMANDS = {
-    "python": "python",
-    "uv": "uv",
-    "git": "git",
-    "gh": "gh",
-    "pdftoppm": "pdftoppm",
-    "soffice": "soffice",
+    "python": ("python", ["--version"]),
+    "python3": ("python3", ["--version"]),
+    "uv": ("uv", ["--version"]),
+    "git": ("git", ["--version"]),
+    "gh": ("gh", ["--version"]),
+    "pwsh": ("pwsh", ["--version"]),
+    "pdftoppm": ("pdftoppm", ["-v"]),
+    "pdfinfo": ("pdfinfo", ["-v"]),
+    "latexmk": ("latexmk", ["-v"]),
+    "pdflatex": ("pdflatex", ["--version"]),
+    "xelatex": ("xelatex", ["--version"]),
+    "lualatex": ("lualatex", ["--version"]),
+    "tectonic": ("tectonic", ["--version"]),
 }
 OFFICE_EXECUTABLES = {
     "POWERPNT.EXE": "native-powerpoint-acceptance",
@@ -55,21 +64,55 @@ def _office_candidates(executable: str) -> list[Path]:
     return candidates
 
 
-def detect_capabilities() -> dict:
-    """Return capability names, sanitized executable locations, and honest caveats."""
-    found_commands: dict[str, str] = {}
+def _command_version(path: str, arguments: list[str]) -> str:
+    """Read one short version line without exposing full command output or secrets."""
+    try:
+        result = subprocess.run(
+            [path, *arguments],
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "unavailable"
+    for line in (result.stdout + "\n" + result.stderr).splitlines():
+        if line.strip():
+            return line.strip()[:160]
+    return "unknown"
+
+
+def detect_capabilities(
+    which: Callable[[str], str | None] = shutil.which,
+    system: Callable[[], str] = platform.system,
+) -> dict:
+    """Return sanitized capability records and honest native-acceptance caveats."""
+    platform_name = system()
+    found_commands: dict[str, dict[str, str]] = {}
     capabilities: set[str] = set()
-    applications: dict[str, str] = {}
+    applications: dict[str, dict[str, str]] = {}
     warnings = ["detection is not native acceptance; licensing and round-trip behavior remain unverified"]
 
-    for capability_name, command in COMMANDS.items():
-        resolved = shutil.which(command)
-        if resolved:
-            found_commands[capability_name] = redact_path(resolved)
-    if "pdftoppm" in found_commands:
+    for capability_name, (command, version_arguments) in COMMANDS.items():
+        resolved = which(command)
+        if not resolved:
+            continue
+        found_commands[capability_name] = {
+            "available": "true",
+            "path": redact_path(resolved),
+            "version": _command_version(resolved, version_arguments),
+            "platform": platform_name,
+            "notes": "command was resolved without starting a native acceptance run",
+        }
+
+    if "pdftoppm" in found_commands and "pdfinfo" in found_commands:
         capabilities.add("pdf-render-and-inspect")
-    if "soffice" in found_commands:
-        capabilities.add("structured-office-conversion")
+    if "latexmk" in found_commands or any(name in found_commands for name in ("tectonic", "xelatex", "lualatex", "pdflatex")):
+        capabilities.add("latex-compilation")
+    if "python" in found_commands or "python3" in found_commands:
+        capabilities.add("python-runtime")
     if "git" in found_commands:
         capabilities.add("git-local-commit")
     if "gh" in found_commands:
@@ -77,11 +120,17 @@ def detect_capabilities() -> dict:
     if "uv" in found_commands:
         capabilities.add("python-uv")
 
-    if platform.system() == "Windows":
+    if platform_name == "Windows":
         for executable, capability in OFFICE_EXECUTABLES.items():
             for candidate in _office_candidates(executable):
                 if candidate.is_file():
-                    applications[executable] = redact_path(str(candidate))
+                    applications[executable] = {
+                        "available": "true",
+                        "path": redact_path(str(candidate)),
+                        "version": "installed executable; native behavior not tested by detection",
+                        "platform": platform_name,
+                        "notes": "path candidate only; license and isolated COM evidence remain separate",
+                    }
                     capabilities.add(capability)
                     break
     else:
@@ -90,7 +139,7 @@ def detect_capabilities() -> dict:
     return {
         "schemaVersion": "1.0",
         "status": "PASS_WITH_WARNING",
-        "platform": platform.system(),
+        "platform": platform_name,
         "commands": found_commands,
         "applications": applications,
         "availableCapabilities": sorted(capabilities),

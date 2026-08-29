@@ -19,6 +19,7 @@ WINDOWS_DRIVE = re.compile(r"^(?P<drive>[A-Za-z]):(?:/|$)")
 WINDOWS_DRIVE_PREFIX = re.compile(r"^[A-Za-z]:")
 WSL_PREFIX = "/" + "/" + "wsl.localhost/"
 WSL_UNC = re.compile(r"^" + re.escape(WSL_PREFIX) + r"(?P<distro>[^/]+)(?P<path>/.*)?$", re.IGNORECASE)
+NETWORK_UNC = re.compile(r"^//(?P<server>[^/]+)(?P<path>/.*)?$", re.IGNORECASE)
 WINDOWS_USER = re.compile(r"(?i)(?P<prefix>[A-Za-z]:/Users/)[^/]+(?P<tail>/.*)?$")
 POSIX_HOME = re.compile(r"^/home/[^/]+(?P<tail>/.*)?$")
 
@@ -54,6 +55,13 @@ def normalize_path(value: str) -> str:
         suffix = "/" + "/".join(parts) if parts else ""
         return WSL_PREFIX + f"{distro}{suffix}"
 
+    network_match = NETWORK_UNC.match(candidate)
+    if network_match:
+        server = network_match.group("server")
+        parts = _parts_without_escape(network_match.group("path") or "/")
+        suffix = "/" + "/".join(parts) if parts else ""
+        return "//" + server + suffix
+
     drive_match = WINDOWS_DRIVE.match(candidate)
     if drive_match:
         drive = drive_match.group("drive").upper()
@@ -74,12 +82,15 @@ def translate_path(value: str, target: str, distro: str = "Ubuntu-24.04") -> str
 
     unc_match = WSL_UNC.match(normalized)
     drive_match = WINDOWS_DRIVE.match(normalized)
+    network_match = NETWORK_UNC.match(normalized)
     if target == "posix":
         if unc_match:
             return normalize_path(unc_match.group("path") or "/")
         if drive_match:
             suffix = normalized[2:]
             return "/mnt/" + drive_match.group("drive").lower() + suffix
+        if network_match:
+            raise PathError("network UNC paths have no safe POSIX translation")
         return normalized
 
     if drive_match:
@@ -91,6 +102,8 @@ def translate_path(value: str, target: str, distro: str = "Ubuntu-24.04") -> str
     if unc_match:
         windows_prefix = "\\" * 2 + "wsl.localhost" + "\\"
         return windows_prefix + unc_match.group("distro") + (unc_match.group("path") or "").replace("/", "\\")
+    if network_match:
+        raise PathError("network UNC paths have no safe WSL translation")
     if normalized.startswith("/"):
         return f"\\\\wsl.localhost\\{distro}" + normalized.replace("/", "\\")
     raise PathError("relative paths have no safe Windows translation")
@@ -103,6 +116,10 @@ def redact_path(value: str) -> str:
     if unc_match:
         public_path = unc_match.group("path") or "/"
         return "${WSL_ROOT}" + public_path
+
+    network_match = NETWORK_UNC.match(normalized)
+    if network_match:
+        return "//<SERVER>" + (network_match.group("path") or "")
 
     windows_match = WINDOWS_USER.match(normalized)
     if windows_match:
@@ -124,8 +141,15 @@ def redact_path(value: str) -> str:
 
 def is_relative_safe(value: str) -> bool:
     """Return whether a manifest path is relative and cannot escape its owning root."""
+    # Manifest names stay canonical instead of accepting an ambiguous internal traversal.
+    raw_parts = value.replace("\\", "/").split("/") if isinstance(value, str) else []
+    if ".." in raw_parts:
+        return False
     try:
         normalized = normalize_path(value)
     except PathError:
+        return False
+    # A normalized empty path would point at the owning directory, not at a file entry.
+    if not normalized:
         return False
     return not normalized.startswith(("/", "//")) and not WINDOWS_DRIVE_PREFIX.match(normalized)
