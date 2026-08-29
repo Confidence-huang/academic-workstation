@@ -8,6 +8,8 @@ native_apps:
   word: auto
   excel: auto
   visio: auto
+  latex_engine: auto
+  pdf_reader: auto
   pdf_renderer: auto
 
 platform:
@@ -19,3 +21,8 @@ policy:
   allow_lossy_conversion: false
   require_native_when_requested: true
   synthetic_marker: "SYNTHETIC TEST DATA — NOT RESEARCH RESULTS"
+
+acceptance:
+  matrix: "PPTX, DOCX, XLSX, VSDX, LaTeX/PDF"
+  visual_review_required: true
+  recovery_gate_required: true

@@ -2,53 +2,67 @@
 
 ## Release scope
 
-This report records the implementation and validation evidence for the academic-workstation
-Skill. The repository contains the orchestrator, schemas, references, templates, tests, and
-synthetic fixtures; it does not contain private source artifacts or copied specialist Skill
-implementations.
+v0.2.0 extends the v0.1.0 routing and evidence foundation with one executable acceptance
+contract for PPTX, DOCX, XLSX, VSDX, and LaTeX/PDF. The repository contains the orchestrator,
+schemas, references, templates, tests, and public synthetic fixtures. Private native artifacts,
+rendered pages, workstation paths, and visual observations remain outside the repository.
 
 ## Implemented
 
-- Capability-first route selection with target precedence and explicit fallback recording.
-- Deterministic status derivation with blocker, required-failure, warning, and pass precedence.
-- Relative SHA-256 hashing, manifest comparison, evidence validation, and publication scanning.
-- Conservative capability detection that does not launch applications.
-- Isolated runtime and behavior entrypoints plus unit tests for routes, paths, status, evidence,
-  security, and restore comparison.
+- `scripts/native_acceptance.ps1` creates synthetic Word, Excel, and Visio artifacts in isolated
+  COM instances, performs native open/save/reopen checks, exports PDF, renders with Poppler,
+  ingests page observations, and records relative SHA-256 evidence without terminating user
+  processes.
+- `scripts/compile_latex.py` discovers the installed TeX toolchain, prefers `latexmk-xelatex`,
+  classifies the final TeX log rather than transient first-pass warnings, and records compiler
+  outputs and hashes.
+- `scripts/pdf_qa.py` is the shared PDF structure/render/visual-QA stage for Office derivatives
+  and LaTeX output. It requires one explicit observation for every rendered page.
+- `scripts/acceptance_matrix.py` merges complementary evidence into five stable rows and keeps
+  `SUPPORTED`, `TESTED`, `PASS`, `PASS_WITH_WARNING`, `DEFERRED`, `UNAVAILABLE`, `FAIL`,
+  `BLOCKED`, and `NOT_RUN` visible.
+- `scripts/recovery_rehearsal.py` creates a clean-checkout backup, restores it into an empty
+  destination, compares both SHA-256 manifests, and can close the project-level Recovery gate.
+- Evidence schemas and validation now cover acceptance gates, fallbacks, visual observations,
+  safe relative paths, and network-UNC rejection. Capability detection remains read-only.
+- `examples/latex/` supplies a synthetic four-page source with a bibliography, figure, table,
+  equation, citation, and cross-references.
 
-## Acceptance record
+## Current acceptance evidence
 
-The release gate is completed from command outputs and a private current-run record. Native
-application results are reported separately from script-level results:
+The following is a private current-run summary, not a claim that a static repository checkout
+can substitute for native applications:
 
-| Gate | Status | Evidence |
-| --- | --- | --- |
-| Skill structure and metadata | PASS | Skill creator validator and lifecycle static verification |
-| Runtime and behavior | PASS | Isolated lifecycle runtime and behavior verification |
-| Security and path scan | PASS | Strict repository scan; no findings |
-| License and attribution review | PASS | MIT release license, no runtime dependencies, no vendored specialist code |
-| Skill discovery | PASS | Current skills CLI remote listing found exactly one academic-workstation entry; no global install was performed |
-| Native PowerPoint pilot | PASS_WITH_WARNING | Current synthetic four-slide pilot reached L5 with an explicit PDF fallback |
-| Git and publication gate | PASS | Public repository exists and origin/main is synchronized; the v0.1.0 tag and release are created from this reviewed HEAD |
+| Artifact row | Native/derivative result | Matrix result | Evidence boundary |
+| --- | --- | --- | --- |
+| PPTX | v0.1.0 pilot reached L5 with the documented PDF fallback | `PASS_WITH_WARNING` | Existing private current-run PowerPoint evidence |
+| DOCX | Word 16.0 generated, reopened, round-tripped, exported 3 PDF pages, and passed visual review | `PASS_WITH_WARNING` | Private Windows runner; recovery remains separate |
+| XLSX | Excel 16.0 generated 3 sheets/25 data rows/formulas and an editable chart, exported the 1-page Dashboard, and passed visual review | `PASS_WITH_WARNING` | Private Windows runner; recovery remains separate |
+| VSDX | Visio 16.0 preserved 6 labeled shapes and 5 connectors, round-tripped, exported, and passed visual review | `PASS_WITH_WARNING` | Private Windows runner; recovery remains separate |
+| LaTeX/PDF | TeX Live 2026 `latexmk-xelatex` compiled 4 pages; PDF structure, render, and visual review passed | `PASS_WITH_WARNING` | Private Windows compiler/PDF QA; recovery remains separate |
 
-The current native warnings are: PowerPoint required a visible-minimized automation window,
-native chart COM creation fell back to editable bar shapes, and the full-argument
-ExportAsFixedFormat call returned E_INVALIDARG before SaveAs PDF succeeded. All four rendered
-pages were inspected and were readable without clipping or overlap. The derived native status
-is PASS_WITH_WARNING; no external blocker remains.
+The row warning is intentional: the aggregate matrix does not silently promote a missing
+recovery gate, and the legacy PPTX evidence predates the v0.2.0 gate-map shape. The individual
+Word, Excel, Visio, and LaTeX/PDF native/derivative gates are complete at L5 in the private
+run. L6 requires the release backup/restore and reproducibility record to be attached to the
+same matrix decision.
 
-The current-run native evidence is private by design. Public claims are limited to the
-sanitized results in this report and the reproducible script-level checks in this repository.
+## Verification commands
 
-## Publication record
+Run the Python checks from a WSL-native checkout:
 
-- Public repository: https://github.com/Confidence-huang/academic-workstation
-- Release line: v0.1.0
-- Publication method: reviewed local HEAD, public main push, immutable tag, and GitHub release verification
-- Global Skill installation: not performed; the remote skills CLI listing was used for discovery without mutating the shared active Skill root
+```bash
+uv run python -m unittest discover -s tests -p 'test_*.py'
+uv run python tests/runtime.py
+uv run python tests/behavior.py
+uv run python scripts/scan_public_repo.py --root . --strict
+```
 
-## Reproduction
+Run the native boundary on Windows with a private output root, inspect every PNG, then rerun
+with `-VisualReviewRoot`. Compile the public LaTeX fixture with `compile_latex.py`, run
+`pdf_qa.py`, and finally merge all JSON records with `acceptance_matrix.py`.
 
-Run the commands in CONTRIBUTING.md. The final report must include the artifact route,
-acceptance level, fallback count, evidence paths, derived status, warnings, deferred checks,
-blockers, and release references.
+## Publication boundary
+
+The v0.1.0 tag and public history are not rewritten. This v0.2.0 work is locally committed
+only; no GitHub push, tag, or release is implied by the attached task document.

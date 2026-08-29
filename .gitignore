@@ -19,6 +19,16 @@ local-profile.yaml
 run-state.json
 preflight.json
 private-evidence/
+native-evidence/
+acceptance-evidence/
+rendered-pdf/
+visual-review.json
+visual-review-*.json
+*.docx
+*.xlsx
+*.vsdx
+*.pptx
+*.pdf
 *.Zone.Identifier
 ~$*
 .#*

@@ -19,3 +19,11 @@ still the authority for visual readability.
 
 When a target PDF reader is unavailable, report native acceptance as NOT_RUN or BLOCKED.
 Do not substitute a different reader silently.
+
+## Shared implementation
+
+`scripts/pdf_qa.py` is the common structure/render/visual stage for Office-derived PDFs and
+LaTeX output. It uses `pdfinfo` and `pdftoppm` when available, removes only its own stale
+`page-*.png` outputs before counting, and accepts a JSON array (or `{ "pages": [...] }`) with
+`page`, `blank`, `clipping`, `overlap`, `overflow`, and `notes` for every page. A PDF evidence
+record can be merged into the LaTeX/PDF matrix row with `sourceArtifactType`.

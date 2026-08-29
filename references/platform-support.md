@@ -13,5 +13,11 @@ relative paths and translate only known Windows, WSL, and POSIX path families.
   automation.
 - User-owned native application instances must remain untouched.
 
+The Windows-only `scripts/native_acceptance.ps1` runner is the native boundary for Word, Excel,
+and Visio. It writes synthetic artifacts to a caller-supplied private staging root, uses fresh
+COM instances, waits for bounded cleanup, and records process IDs without terminating them.
+LaTeX compilation and PDF QA can run on any host with the discovered tools; the matrix keeps
+missing native capabilities as `UNAVAILABLE` or `NOT_RUN`.
+
 Use placeholders such as <PROJECT_ROOT>, <SKILLS_ROOT>, and <BACKUP_ROOT> in public reports.
 Never publish a concrete workstation root.

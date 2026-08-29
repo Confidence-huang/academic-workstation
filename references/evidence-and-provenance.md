@@ -17,3 +17,12 @@ identifiers before a public report. Keep private evidence outside the public rep
 
 An evidence item should answer what was checked, how it was checked, which artifact proves
 it, where the artifact came from, and what remains unrun or uncertain.
+
+## v0.2.0 common fields
+
+Office and LaTeX/PDF producers may emit the same `acceptance.gates` map with
+`generate`, `parse`, `nativeOpen`, `roundtrip`, `export`, `structuralQA`, `visualQA`,
+`evidence`, and `recovery`. A PDF derivative can declare `sourceArtifactType` so the matrix
+merges it into the source row. `fallbacks` must state the failed primary step, error, selected
+fallback, and fallback result. `visualReview` must contain one page object per rendered page;
+an absent object is `NOT_RUN`, not a pass.

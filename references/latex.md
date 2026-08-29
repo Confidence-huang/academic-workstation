@@ -13,3 +13,11 @@ visual proof.
 
 Do not silently replace a missing TeX engine with a different document generator. Record the
 fallback and its acceptance depth.
+
+## v0.2.0 executable route
+
+Use `scripts/compile_latex.py` to discover the installed engine and prefer `latexmk-xelatex`.
+The compiler records the selected command, hashes `compile.log` and the PDF, and classifies the
+final TeX log. Undefined references/citations, missing figures/fonts, and fatal errors are hard
+failures; overfull and underfull boxes are layout diagnostics. Follow compilation with the
+shared `scripts/pdf_qa.py` and one visual observation for every rendered page.

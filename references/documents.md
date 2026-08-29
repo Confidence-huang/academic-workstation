@@ -16,3 +16,10 @@ rendering or save behavior.
 If SaveCopyAs rejects the destination, record the exact error and use a local staging copy
 plus the installed SaveAs2 format constant. Never treat a compatibility renderer as native
 Word acceptance.
+
+## v0.2.0 synthetic pilot
+
+`scripts/native_acceptance.ps1 -Artifact word` creates a private synthetic DOCX with paragraphs,
+a table, an embedded picture, headers, footers, and page breaks. The pilot checks Word open,
+SaveAs2 roundtrip, page/table/picture counts, native PDF export, shared PDF rendering, and an
+explicit `word.json` page review. A missing review remains `NOT_RUN` and therefore cannot pass.

@@ -2,6 +2,9 @@
 
 > An evidence-first orchestration skill for routing, generating, natively validating, visually inspecting, and safely delivering research and Office artifacts.
 
+Current release line: **v0.2.0**. It adds executable Word, Excel, Visio, LaTeX compilation,
+and unified PDF visual-QA contracts on top of the v0.1.0 routing and evidence foundation.
+
 Academic Workstation coordinates specialist tools around a research or Office deliverable.
 It makes the artifact shape, requested target, acceptance depth, fallback reason, provenance,
 and final status explicit. It is an orchestrator, not a replacement for PowerPoint, Word,
@@ -38,6 +41,10 @@ python scripts/derive_status.py --input path/to/evidence.json
 python scripts/validate_evidence.py --input path/to/evidence.json --root path/to/artifacts
 python scripts/hash_artifacts.py --root path/to/artifacts --output path/to/manifest.json
 python scripts/compare_manifests.py --expected path/to/manifest.json --actual path/to/restored.json
+python scripts/recovery_rehearsal.py --source-root . --backup-root /mnt/e/CodexBackups/... --restore-root private-restore --output private-evidence/recovery.json
+python scripts/acceptance_matrix.py --evidence-dir private-evidence --recovery-evidence private-evidence/recovery.json --output private-evidence/matrix.json
+python scripts/compile_latex.py --source examples/latex/main.tex --output-dir private-evidence/latex
+python scripts/pdf_qa.py --pdf private-evidence/latex/main.pdf --root private-evidence/latex
 python tests/runtime.py
 python tests/behavior.py
 python -m unittest discover -s tests -p 'test_*.py'
@@ -46,6 +53,30 @@ python scripts/scan_public_repo.py --root . --strict
 
 The capability detector reports conservative signals without launching native applications.
 Its output is a discovery hint, never native acceptance evidence.
+
+## Academic Artifact Acceptance Matrix
+
+The machine-readable matrix has five stable rows: PPTX, DOCX, XLSX, VSDX, and LaTeX/PDF.
+Its columns are Generate, Parse, Native Open, Roundtrip, Export, Structural QA, Visual QA,
+Evidence, and Recovery. A PDF QA record with `sourceArtifactType: latex` is merged into the
+LaTeX/PDF row; a missing or unrun gate remains visible. See
+[references/acceptance-matrix.md](references/acceptance-matrix.md) and
+[schemas/acceptance-matrix.schema.json](schemas/acceptance-matrix.schema.json).
+
+The native Office pilot is Windows-only and creates synthetic files in a private staging root:
+
+~~~powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/native_acceptance.ps1 `
+  -Artifact all `
+  -OutputRoot C:\Temp\academic-workstation-v020-native `
+  -VisualReviewRoot C:\Temp\academic-workstation-visual-review `
+  -RecoveryEvidence C:\Temp\academic-workstation-recovery.json
+~~~
+
+The runner uses isolated COM instances, preserves user-owned processes, records fallbacks and
+relative hashes, refuses to call a missing visual review a pass, and accepts only a verified
+project recovery record for L6. LaTeX and PDF tools remain host-dependent; an executable path
+is never treated as native acceptance by itself.
 
 ## Acceptance vocabulary
 
@@ -62,11 +93,11 @@ Its output is a discovery hint, never native acceptance evidence.
 
 - SKILL.md — invocation boundary and orchestration contract.
 - agents/openai.yaml — Codex display metadata and default prompt.
-- scripts/ — deterministic routing, status, hashing, evidence, capability, and publication gates.
-- schemas/ — machine-readable request, status, evidence, manifest, and lifecycle shapes.
+- scripts/ — deterministic routing, status, hashing, evidence, capability, native Office, LaTeX, PDF, recovery, and matrix gates.
+- schemas/ — machine-readable request, status, evidence, manifest, lifecycle, and matrix shapes.
 - references/ — route-specific acceptance and platform rules.
 - templates/ — evidence reports that keep claims, artifacts, and provenance separate.
-- examples/ — non-research fixtures only.
+- examples/ — non-research fixtures, including the LaTeX source pilot.
 - tests/ — self-bootstrapping runtime, behavior, unit, security, and restore checks.
 
 ## Native application boundary

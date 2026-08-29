@@ -13,3 +13,11 @@ static deliverable.
 
 If Visio or a commercial license is unavailable, mark the native gate NOT_RUN or BLOCKED
 with the reason. Do not claim acceptance from a file extension or a static XML inspection.
+
+## v0.2.0 synthetic pilot
+
+`scripts/native_acceptance.ps1 -Artifact visio` creates six labeled shapes and five arrowed
+connectors, saves VSDX, reopens it, counts `OneD` connectors and text objects, exports PDF,
+renders a preview, and requires `visio.json` page observations. COM API differences are
+recorded as explicit fallbacks; the pilot never flattens a diagram to make a structural check
+look successful.
