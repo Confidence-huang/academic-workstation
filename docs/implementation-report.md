@@ -27,8 +27,9 @@ application results are reported separately from script-level results:
 | Runtime and behavior | PASS | Isolated lifecycle runtime and behavior verification |
 | Security and path scan | PASS | Strict repository scan; no findings |
 | License and attribution review | PASS | MIT release license, no runtime dependencies, no vendored specialist code |
+| Skill discovery | PASS | Current skills CLI remote listing found exactly one academic-workstation entry; no global install was performed |
 | Native PowerPoint pilot | PASS_WITH_WARNING | Current synthetic four-slide pilot reached L5 with an explicit PDF fallback |
-| Git and publication gate | NOT_RUN | Updated only after verified remote evidence |
+| Git and publication gate | PASS | Public repository exists and origin/main is synchronized; the v0.1.0 tag and release are created from this reviewed HEAD |
 
 The current native warnings are: PowerPoint required a visible-minimized automation window,
 native chart COM creation fell back to editable bar shapes, and the full-argument
@@ -38,6 +39,13 @@ is PASS_WITH_WARNING; no external blocker remains.
 
 The current-run native evidence is private by design. Public claims are limited to the
 sanitized results in this report and the reproducible script-level checks in this repository.
+
+## Publication record
+
+- Public repository: https://github.com/Confidence-huang/academic-workstation
+- Release line: v0.1.0
+- Publication method: reviewed local HEAD, public main push, immutable tag, and GitHub release verification
+- Global Skill installation: not performed; the remote skills CLI listing was used for discovery without mutating the shared active Skill root
 
 ## Reproduction
 
