@@ -23,6 +23,15 @@ All notable changes to this project are recorded here.
 - Native Office and TeX/PDF results are host evidence, not promises made by static repository
   inspection. Recovery is a separately recorded project-level release gate.
 
+### Public release notes
+
+- The v0.2.0 public release is the shared acceptance foundation for the companion PPT and Paper
+  workflow repositories.
+- Public documentation uses relative or placeholder paths and does not distribute private
+  acceptance bundles, specialist implementations, system fonts, or Office software.
+- A known PowerPoint fixed-format export compatibility warning remains documented with its native
+  `SaveAs(PDF)` fallback.
+
 ## [0.1.0] - 2026-08-29
 
 ### Added

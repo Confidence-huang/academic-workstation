@@ -29,7 +29,7 @@ and pass both manifest comparisons:
 ```bash
 python scripts/recovery_rehearsal.py \
   --source-root . \
-  --backup-root /mnt/e/CodexBackups/academic-workstation/<timestamp> \
+  --backup-root <private-backup-root> \
   --restore-root private-recovery/<timestamp> \
   --output private-evidence/recovery.json
 ```

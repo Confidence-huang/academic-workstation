@@ -6,6 +6,10 @@ This repository contains orchestration scripts, schemas, documentation, and synt
 fixtures. It must not contain credentials, private workstation paths, original research
 artifacts, or native application lock files.
 
+The public release excludes local acceptance bundles and specialist implementation sources. Use
+relative paths or placeholders in reports and issue examples; do not submit a local profile or
+private native-session output.
+
 ## Reporting
 
 Please report a suspected vulnerability privately through the repository's GitHub Security
