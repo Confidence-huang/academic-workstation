@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/academic-workstation/evidence.schema.json",
+  "title": "Academic Workstation evidence",
+  "type": "object",
+  "required": ["schemaVersion", "origin", "status", "checks", "artifacts", "warnings", "deferred", "blockers"],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "origin": {"enum": ["CURRENT_RUN", "HISTORICAL_SOURCE", "SYNTHETIC_EXAMPLE", "USER_SUPPLIED"]},
+    "status": {"enum": ["PASS", "PASS_WITH_WARNING", "FAIL", "BLOCKED"]},
+    "checks": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+    "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "deferred": {"type": "array", "items": {"type": "string"}},
+    "blockers": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "required": ["name", "status", "required"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "status": {"enum": ["PASS", "FAIL", "NOT_RUN", "NOT_APPLICABLE", "BLOCKED", "UNKNOWN"]},
+        "required": {"type": "boolean"},
+        "details": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:)(?!//)"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+        "bytes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

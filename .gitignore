@@ -1,0 +1,24 @@
+# Local runtime and environment state must never enter a public Skill repository.
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.coverage
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+tmp/
+temp/
+*.tmp
+*.bak
+*.log
+.env
+.env.*
+local-profile.yaml
+run-state.json
+preflight.json
+private-evidence/
+*.Zone.Identifier
+~$*
+.#*

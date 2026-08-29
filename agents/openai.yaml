@@ -1,0 +1,7 @@
+interface:
+  display_name: "Academic Workstation"
+  short_description: "Evidence-first research artifact routing and native QA"
+  default_prompt: "Use $academic-workstation to route and validate a research artifact with evidence."
+  brand_color: "#245B8A"
+policy:
+  allow_implicit_invocation: true

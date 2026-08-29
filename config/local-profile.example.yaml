@@ -1,0 +1,21 @@
+project_root: "${PROJECT_ROOT}"
+skills_root: "${SKILLS_ROOT}"
+output_root: "${OUTPUT_ROOT}"
+backup_root: "${BACKUP_ROOT}"
+
+native_apps:
+  powerpoint: auto
+  word: auto
+  excel: auto
+  visio: auto
+  pdf_renderer: auto
+
+platform:
+  windows: auto
+  wsl: auto
+  linux: auto
+
+policy:
+  allow_lossy_conversion: false
+  require_native_when_requested: true
+  synthetic_marker: "SYNTHETIC TEST DATA — NOT RESEARCH RESULTS"

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/academic-workstation/route-request.schema.json",
+  "title": "Capability-first route request",
+  "type": "object",
+  "required": ["inputFormat", "targetFormat"],
+  "properties": {
+    "inputFormat": {"type": "string", "minLength": 1},
+    "targetFormat": {"type": "string", "minLength": 1},
+    "editable": {"type": "boolean"},
+    "structuredSource": {"type": "boolean"},
+    "nativeAcceptance": {"type": "boolean"},
+    "requiredNative": {"type": "boolean"},
+    "allowFallback": {"type": "boolean"},
+    "userTool": {"type": "string"},
+    "availableCapabilities": {"type": "array", "items": {"type": "string"}},
+    "optionalCapabilities": {"type": "array", "items": {"type": "string"}},
+    "fallbackCapabilities": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

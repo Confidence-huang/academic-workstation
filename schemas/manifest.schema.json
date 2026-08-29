@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/academic-workstation/manifest.schema.json",
+  "title": "Relative artifact SHA-256 manifest",
+  "type": "object",
+  "required": ["schemaVersion", "algorithm", "files", "links"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "algorithm": {"const": "SHA-256"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "bytes", "sha256"],
+        "properties": {
+          "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:)(?!//)"},
+          "bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "links": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

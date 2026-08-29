@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0",
+  "origin": "SYNTHETIC_EXAMPLE",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "relative fixture is present",
+      "status": "PASS",
+      "required": true,
+      "details": "The fixture is intentionally synthetic and is not a research result."
+    },
+    {
+      "name": "native Office acceptance",
+      "status": "NOT_APPLICABLE",
+      "required": false,
+      "details": "This text fixture is used for script-level validation only."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "synthetic-result.txt",
+      "bytes": 71,
+      "sha256": "cefc47713580f50fdb4889ba018db22ed8b3ce32c25e0272b1d31b37aff7682b"
+    }
+  ],
+  "warnings": [],
+  "deferred": [],
+  "blockers": []
+}
