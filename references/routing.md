@@ -3,6 +3,11 @@
 Routing answers one question first: which capability matches the requested artifact shape?
 Integration names are selected only after the capability is known.
 
+For a PPT request entered as ordinary natural language, the user-level orchestration Skill
+`ppt-standard-workflow-skill` converts the source-shape decision into a route record before this
+project consumes acceptance evidence. Its main trunk is presentation generation; structured and
+image specialists are page-level conditional routes, not competing whole-deck owners.
+
 ## Precedence
 
 1. Preserve the user's target format and explicitly requested tool.

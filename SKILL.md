@@ -17,6 +17,11 @@ This project is an orchestrator. Specialist tools create or edit the artifact; t
 composes, validates, evidences, and decides whether it is ready to deliver. It does not replace
 PowerPoint, Word, Excel, PDF, Visio, or LaTeX tools and does not copy their implementations.
 
+For the governed ordinary PPT entry, the external `ppt-standard-workflow-skill` supplies the
+natural-language route decision and this project supplies the shared evidence, status, PDF, and
+visual-QA interface. The two responsibilities remain separate: route selection is not evidence
+of acceptance, and an accepted PDF is not evidence that the PPTX remained editable.
+
 ## Two operating modes
 
 - **Artifact Orchestration Mode** handles research and Office artifacts. Read the relevant route

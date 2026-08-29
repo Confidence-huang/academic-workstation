@@ -37,3 +37,25 @@ as a primary export.
 Use a fresh synthetic presentation containing SYNTHETIC TEST DATA and NOT RESEARCH RESULTS.
 Create a separate application instance, set the applicable automation security to its
 highest safe setting, avoid task termination, and close only objects created by the pilot.
+
+## Standard natural-language PPT workflow interface
+
+The user-level entry for an ordinary PPT request is the external orchestration Skill
+`ppt-standard-workflow-skill`. The user may provide only “帮我做 PPT，按标准流程。”; the
+orchestrator records the source-shape decision and keeps the following ownership:
+
+- the presentation artifact generator owns narrative, ordinary content, layout, and deck assembly;
+- the structured-page specialist is conditional for data, charts, tables, SVG, and complex connected
+  pages; it does not replace the main deck owner;
+- the image-reconstruction specialist is conditional for raster, screenshot, flattened, and
+  reference-image pages; the original image is retained as provenance;
+- every final PPTX enters the native PowerPoint round-trip gate, then this project consumes its
+  common evidence shape through `scripts/derive_status.py` and `scripts/pdf_qa.py`;
+- an observed defect requires an actual edit followed by a second native round-trip and a second
+  page-by-page PDF/visual review; a report-only change is not a repair;
+- WSL formal outputs and a Windows-local preview/delivery copy are separate evidence surfaces and
+  both hashes are recorded.
+
+This interface is a companion contract, not a copy of the specialist implementations. Its route
+record should expose `mainTrunk`, `conditionalRoutes`, `nativeGate`, `qaInterface`, `repairLoop`,
+and `previewDelivery`, while the final status still comes from actual evidence.
