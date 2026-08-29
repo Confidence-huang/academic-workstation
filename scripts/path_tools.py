@@ -16,6 +16,7 @@ class PathError(ValueError):
 
 
 WINDOWS_DRIVE = re.compile(r"^(?P<drive>[A-Za-z]):(?:/|$)")
+WINDOWS_DRIVE_PREFIX = re.compile(r"^[A-Za-z]:")
 WSL_PREFIX = "/" + "/" + "wsl.localhost/"
 WSL_UNC = re.compile(r"^" + re.escape(WSL_PREFIX) + r"(?P<distro>[^/]+)(?P<path>/.*)?$", re.IGNORECASE)
 WINDOWS_USER = re.compile(r"(?i)(?P<prefix>[A-Za-z]:/Users/)[^/]+(?P<tail>/.*)?$")
@@ -127,4 +128,4 @@ def is_relative_safe(value: str) -> bool:
         normalized = normalize_path(value)
     except PathError:
         return False
-    return not normalized.startswith(("/", "//")) and not WINDOWS_DRIVE.match(normalized)
+    return not normalized.startswith(("/", "//")) and not WINDOWS_DRIVE_PREFIX.match(normalized)

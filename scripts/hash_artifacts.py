@@ -13,6 +13,8 @@ import os
 from pathlib import Path
 from typing import Iterable
 
+from path_tools import is_relative_safe, normalize_path
+
 
 def sha256_file(path: Path) -> str:
     """Hash one regular file in bounded chunks so large artifacts stay streamable."""
@@ -74,9 +76,9 @@ def build_manifest(
         files = []
         links = []
         for raw_path in relative_paths:
-            relative = Path(raw_path)
-            if relative.is_absolute() or ".." in relative.parts:
+            if not isinstance(raw_path, str) or not is_relative_safe(raw_path):
                 raise ValueError(f"manifest path must be relative: {raw_path}")
+            relative = Path(normalize_path(raw_path))
             candidate = root / relative
             if candidate.is_symlink():
                 links.append(relative.as_posix())

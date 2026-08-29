@@ -25,6 +25,7 @@ class PathRulesTest(unittest.TestCase):
         self.assertEqual(redact_path("C:/Users/<USER>/Documents/paper.pdf"), "C:/Users/<USER>/Documents/paper.pdf")
         self.assertTrue(is_relative_safe("reports/final.json"))
         self.assertFalse(is_relative_safe("../outside.json"))
+        self.assertFalse(is_relative_safe("C:outside.json"))
         with self.assertRaises(PathError):
             normalize_path("../../outside.json")
 
