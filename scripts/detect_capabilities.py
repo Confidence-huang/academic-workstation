@@ -84,6 +84,11 @@ def _command_version(path: str, arguments: list[str]) -> str:
     return "unknown"
 
 
+def _which_tool(name: str, which: Callable[[str], str | None]) -> str | None:
+    """Resolve a Linux command or its Windows executable form when running under WSL."""
+    return which(name) or which(name + ".exe")
+
+
 def detect_capabilities(
     which: Callable[[str], str | None] = shutil.which,
     system: Callable[[], str] = platform.system,
@@ -96,7 +101,7 @@ def detect_capabilities(
     warnings = ["detection is not native acceptance; licensing and round-trip behavior remain unverified"]
 
     for capability_name, (command, version_arguments) in COMMANDS.items():
-        resolved = which(command)
+        resolved = _which_tool(command, which)
         if not resolved:
             continue
         found_commands[capability_name] = {

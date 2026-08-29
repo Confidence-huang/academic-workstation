@@ -14,6 +14,16 @@ visual proof.
 Do not silently replace a missing TeX engine with a different document generator. Record the
 fallback and its acceptance depth.
 
+## Platform boundary and repair
+
+The route may run Windows TeX Live from WSL when the installed engine is exposed as a .exe.
+The compiler converts the WSL output directory to a Windows UNC path for the native process,
+while keeping the authoritative source and evidence in the WSL project. This is a recorded
+platform fallback, not a silent change of document generator.
+
+If content or layout QA finds a real issue, repair the .tex, bibliography, or source-owned
+figure, record source hashes, recompile, and rerun PDF QA. Do not edit the derivative PDF.
+
 ## v0.2.0 executable route
 
 Use `scripts/compile_latex.py` to discover the installed engine and prefer `latexmk-xelatex`.

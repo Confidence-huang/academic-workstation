@@ -26,6 +26,15 @@ class CapabilityTest(unittest.TestCase):
         self.assertEqual(result["commands"]["git"]["platform"], "Linux")
         self.assertEqual(result["nativeAcceptance"], "NOT_RUN")
 
+    def test_windows_executable_suffix_is_detected(self) -> None:
+        def fake_which(name: str) -> str | None:
+            if name in {"pdfinfo.exe", "pdftoppm.exe"}:
+                return "/tools/" + name
+            return None
+
+        result = detect_capabilities(fake_which, lambda: "Linux")
+        self.assertIn("pdf-render-and-inspect", result["availableCapabilities"])
+
 
 if __name__ == "__main__":
     unittest.main()

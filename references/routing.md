@@ -20,6 +20,14 @@ schemas/route-request.schema.json defines the machine-readable request. The rout
 prints a record containing the chosen capability, route steps, target-preservation flag,
 structured-source flag, warnings, and blockers.
 
+## Academic paper route
+
+Paper route precedence is explicit user format, official template, explicit delivery constraint,
+and then evidence-driven default. A formula-heavy, data-heavy, citation-dense, structurally
+complex, or PDF-first paper uses the source-preserving LaTeX route. An explicit DOCX requirement
+or Word template uses the native Word route. The paper-standard-workflow-skill records this
+decision before Academic Workstation consumes the acceptance evidence.
+
 ## Shape examples
 
 | Input shape | Target | Preferred capability |

@@ -72,6 +72,11 @@ def _check(name: str, status: str, required: bool, details: str = "") -> dict[st
     return result
 
 
+def _which_tool(name: str, which: Callable[[str], str | None] = shutil.which) -> str | None:
+    """Resolve Poppler from either a Linux command or a Windows .exe on WSL PATH."""
+    return which(name) or which(name + ".exe")
+
+
 def _load_visual_review(path: Path | None) -> list[dict[str, Any]] | None:
     """Load human/model page observations while accepting either a list or a wrapped object."""
     if path is None:
@@ -143,7 +148,7 @@ def inspect_pdf(
         checks.append(_check("PDF file exists", "PASS", True, "The input is a regular file."))
         artifacts.append(_artifact(pdf_path, evidence_root))
 
-    pdfinfo = shutil.which("pdfinfo")
+    pdfinfo = _which_tool("pdfinfo")
     if not pdfinfo:
         checks.append(_check("pdfinfo available", "NOT_RUN", False, "pdfinfo is not available on this host."))
         blockers.append("pdfinfo is required for deterministic PDF structure inspection")
@@ -170,7 +175,7 @@ def inspect_pdf(
     else:
         checks.append(_check("PDF structure parse", "NOT_RUN", True, "Structure inspection waits for a regular PDF file."))
 
-    pdftoppm = shutil.which("pdftoppm")
+    pdftoppm = _which_tool("pdftoppm")
     if not pdftoppm:
         checks.append(_check("pdftoppm available", "NOT_RUN", False, "pdftoppm is not available on this host."))
         blockers.append("pdftoppm is required for deterministic page rendering")

@@ -22,6 +22,14 @@ natural-language route decision and this project supplies the shared evidence, s
 visual-QA interface. The two responsibilities remain separate: route selection is not evidence
 of acceptance, and an accepted PDF is not evidence that the PPTX remained editable.
 
+## Academic paper interface
+
+For paper requests, the companion paper-standard-workflow-skill owns the natural-language
+entry and route selection. Read references/paper-workflow.md for the shared contract, then use
+the existing LaTeX, Word, PDF, evidence, platform, and status scripts instead of creating a
+second acceptance framework. The authoritative source remains .tex or .docx; a PDF is a
+derivative QA surface.
+
 ## Two operating modes
 
 - **Artifact Orchestration Mode** handles research and Office artifacts. Read the relevant route
@@ -59,6 +67,9 @@ of acceptance, and an accepted PDF is not evidence that the PPTX remained editab
    creating a second artifact identity.
 
 ## Route-specific references
+
+- Academic paper workflow: read references/paper-workflow.md for route ownership, source identity,
+  content gates, native/compile gates, repair, and WSL/Windows preview delivery.
 
 - PPTX or presentation planning: read [references/presentations.md](references/presentations.md)
   and the acceptance levels.

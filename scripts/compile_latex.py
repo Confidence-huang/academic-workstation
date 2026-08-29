@@ -42,8 +42,14 @@ def _hash_file(path: Path) -> str:
 
 
 def discover_engines(which: Callable[[str], str | None] = shutil.which) -> dict[str, str]:
-    """Return installed LaTeX commands without assuming a fixed TeX distribution path."""
-    return {name: resolved for name in ENGINE_NAMES if (resolved := which(name))}
+    """Return installed LaTeX commands, including Windows executables visible from WSL."""
+    available: dict[str, str] = {}
+    for name in ENGINE_NAMES:
+        # WSL PATH entries can expose the Windows TeX Live binary only as name.exe.
+        resolved = which(name) or which(name + ".exe")
+        if resolved:
+            available[name] = resolved
+    return available
 
 
 def select_engine(available: dict[str, str]) -> dict[str, Any] | None:
@@ -80,6 +86,24 @@ def _run(command: list[str], cwd: Path, timeout_seconds: int) -> subprocess.Comp
         errors="replace",
         timeout=timeout_seconds,
     )
+
+
+def _path_for_engine(path: Path, command: str) -> str:
+    """Translate WSL output paths when a Windows TeX executable owns the compile."""
+    if not command.lower().endswith(".exe"):
+        return str(path)
+    try:
+        converted = subprocess.run(
+            ["wslpath", "-w", str(path)],
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except OSError:
+        return str(path)
+    return converted.stdout.strip() if converted.returncode == 0 and converted.stdout.strip() else str(path)
 
 
 def _artifact(path: Path, root: Path) -> dict[str, Any]:
@@ -146,11 +170,25 @@ def compile_latex(source: Path, output_dir: Path, timeout_seconds: int = 180) ->
                 }
             )
         if selected["name"].startswith("latexmk"):
-            command = [selected["command"], *selected["arguments"], f"-outdir={output_dir}", source.name]
+            output_argument = "-outdir=" + _path_for_engine(output_dir, selected["command"])
+            command = [selected["command"], *selected["arguments"], output_argument, source.name]
         elif selected["name"] == "tectonic":
-            command = [selected["command"], "--keep-logs", "--outdir", str(output_dir), source.name]
+            command = [
+                selected["command"],
+                "--keep-logs",
+                "--outdir",
+                _path_for_engine(output_dir, selected["command"]),
+                source.name,
+            ]
         else:
-            command = [selected["command"], "-interaction=nonstopmode", "-halt-on-error", f"-output-directory={output_dir}", source.name]
+            output_argument = "-output-directory=" + _path_for_engine(output_dir, selected["command"])
+            command = [
+                selected["command"],
+                "-interaction=nonstopmode",
+                "-halt-on-error",
+                output_argument,
+                source.name,
+            ]
         command_record = [redact_path(str(item)) if index == 0 else str(item) for index, item in enumerate(command)]
         try:
             compile_result = _run(command, source.parent, timeout_seconds)

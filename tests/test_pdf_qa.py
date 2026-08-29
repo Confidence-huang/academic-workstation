@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from pdf_qa import _visual_check
+from pdf_qa import _visual_check, _which_tool
 
 
 class PdfQualityTest(unittest.TestCase):
@@ -28,6 +28,12 @@ class PdfQualityTest(unittest.TestCase):
         self.assertEqual(check["status"], "NOT_RUN")
         self.assertTrue(check["required"])
         self.assertEqual(records, [])
+
+    def test_windows_poppler_executable_suffix_is_discovered(self) -> None:
+        def fake_which(name: str) -> str | None:
+            return "/tools/pdfinfo.exe" if name == "pdfinfo.exe" else None
+
+        self.assertEqual(_which_tool("pdfinfo", fake_which), "/tools/pdfinfo.exe")
 
 
 if __name__ == "__main__":
