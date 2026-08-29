@@ -73,6 +73,25 @@ class AcceptanceMatrixTest(unittest.TestCase):
         self.assertEqual(row["highestLevel"], "L6")
         self.assertEqual(matrix["recovery"]["status"], "PASS")
 
+    def test_companion_gates_close_stage_local_warnings(self) -> None:
+        gates = _gates()
+        gates["recovery"] = "NOT_RUN"
+        matrix = build_matrix(
+            [
+                {
+                    "artifactType": "docx",
+                    "status": "PASS_WITH_WARNING",
+                    "acceptance": {"gates": gates},
+                    "warnings": [],
+                    "deferred": ["Backup/restore rehearsal is a separate release gate."],
+                    "fallbacks": [],
+                }
+            ],
+            {"status": "PASS", "acceptance": {"gates": {"recovery": "PASS"}}},
+        )
+        row = next(item for item in matrix["rows"] if item["artifactType"] == "docx")
+        self.assertEqual(row["status"], "PASS")
+
 
 if __name__ == "__main__":
     unittest.main()

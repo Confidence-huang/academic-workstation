@@ -206,6 +206,35 @@ def _merge_overall_status(records: Iterable[dict[str, Any]], gates: Iterable[str
     return "PASS" if declared or gate_values else "UNAVAILABLE"
 
 
+def _deferred_item_is_closed(item: Any, gates: dict[str, str]) -> bool:
+    """Close a stage-local deferral only when a companion matrix gate now proves it."""
+    if not isinstance(item, str):
+        return False
+    wording = item.lower()
+    if any(token in wording for token in ("backup", "restore", "recovery")):
+        return gates.get("recovery") == "PASS"
+    if any(token in wording for token in ("visual", "render", "pdf qa")):
+        return gates.get("visualQA") == "PASS"
+    return False
+
+
+def _record_status_after_companions(record: dict[str, Any], gates: dict[str, str]) -> str:
+    """Ignore a resolved intermediate warning while preserving fallbacks and open work."""
+    declared = _status(record.get("status"))
+    if declared not in {"PASS_WITH_WARNING", "DEFERRED"}:
+        return declared
+    warnings = record.get("warnings")
+    fallbacks = record.get("fallbacks")
+    route = record.get("route")
+    route_fallback_count = route.get("fallbackCount", 0) if isinstance(route, dict) else 0
+    if warnings or fallbacks or route_fallback_count:
+        return declared
+    deferred = record.get("deferred", [])
+    if isinstance(deferred, list) and deferred and all(_deferred_item_is_closed(item, gates) for item in deferred):
+        return "PASS"
+    return declared
+
+
 def _highest_level(records: Iterable[dict[str, Any]], gates: dict[str, str]) -> str:
     """Report the highest explicit level without inferring native success from a file alone."""
     explicit_levels: list[int] = []
@@ -263,7 +292,8 @@ def build_matrix(
         }
         if recovery_status is not None:
             gate_statuses["recovery"] = _merge_gate_status((gate_statuses["recovery"], recovery_status))
-        row_status = _merge_overall_status(records, gate_statuses.values()) if records else "UNAVAILABLE"
+        resolved_records = [{"status": _record_status_after_companions(record, gate_statuses)} for record in records]
+        row_status = _merge_overall_status(resolved_records, gate_statuses.values()) if records else "UNAVAILABLE"
         rows.append(
             {
                 "artifact": definition["label"],
